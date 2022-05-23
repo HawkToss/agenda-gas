@@ -2,8 +2,14 @@
 
 function crearTablaContactos()
 {
-    google.script.run.withSuccessHandler(
-        function(obj)
+    google.script.run
+    .withSuccessHandler(crearTablaContactosCorrectamente)
+    .withFailureHandler(crearTablaContactosError)
+    .obtenerContactos(); //ejecuta la funcion y le retorna datos que van al obj
+
+}
+
+function crearTablaContactosCorrectamente(obj)
         {   //crea tablas de distintos tipos y agrega los datos
             
             let tabla = document.getElementById("tablaContactos")
@@ -41,8 +47,36 @@ function crearTablaContactos()
             tabla.classList.add("table","table-striped","border","border-3")
             //agregamos tabla a la pagina
             document.getElementById("divContactos").appendChild(tabla);
+            
+            //mostrar notificacion de ok
+            crearNotificacion(1,"Contactos obtenidos correctamente","Todo en orden");
+
         }
-    ).obtenerContactos(); //ejecuta la funcion y le retorna datos que van al obj
+
+function crearTablaContactosError()
+{
+    //mostrar notificacion error
+}
+
+function crearNotificacion(tipo,mensaje,titulo)
+{
+    let mensajeNotificacion = document.getElementById("mensajeNotificacion");
+    let tituloNotificacion = document.getElementById("tituloNotificacion");
+    let elementoNotificacion = document.getElementById("notificacion");
+    let iconoNotificacion = document.getElementById("iconoNotificacion");
+    let notificacion = bootstrap.Toast.getOrCreateInstance(elementoNotificacion)
+
+    //editar
+    iconoNotificacion.className = "";
+    iconoNotificacion.classList.add("bi","bi-check2-square");
+    mensajeNotificacion.textContent = mensaje;
+    tituloNotificacion.textContent = titulo;
+    elementoNotificacion.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue("--color-verde-oscuro");
+
+    //mostrar
+    notificacion.show()
+
 
 }
+
 </script>
