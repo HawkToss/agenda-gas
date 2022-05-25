@@ -1,20 +1,70 @@
 <script>
 
+function insertarContacto()
+{
+    //obtener datos
+    let nombre=document.getElementById("nombre").value;
+    let correo = document.getElementById("correo").value;
+
+    //eliminar tabla
+    let tabla = document.getElementById("tablaContactos")
+    if(tabla) tabla.remove();
+
+    //creare loader
+    crearLoader("divContactos");
+
+    google.script.run
+    .withSuccessHandler(contactoInsertadoCorrectamente)
+    .withFailureHandler(contactoInsertadoError)
+    .insertarContacto(nombre,correo); //ejecuta la funcion y le retorna datos que van al obj
+
+}
+
+function contactoInsertadoCorrectamente()
+{
+    //eliminamos los datos de los inputs  
+    document.getElementById("nombre").value = "";
+    document.getElementById("correo").value = "";
+
+    //mostrar notificacion
+    crearNotificacionOK("Contacto insertado correctamente","CONTACTO OK");
+
+    //eliminar loader
+    eliminarLoader();
+
+    crearTablaContactos();
+}
+
+function contactoInsertadoError()
+{
+    crearNotificacionError("No se ha podido insertar el contacto","ERROR");
+    //eliminar loader
+    eliminarLoader();
+
+    crearTablaContactos();
+}
 
 function crearTablaContactos()
 {
-    google.script.run
+    //borrar tabla
+    let tabla = document.getElementById("tablaContactos")
+    if(tabla) tabla.remove();
+
+    //creare loader
+    crearLoader("divContactos");
+
+    google.script.run 
     .withSuccessHandler(crearTablaContactosCorrectamente)
     .withFailureHandler(crearTablaContactosError)
     .obtenerContactos(); //ejecuta la funcion y le retorna datos que van al obj
+
 
 }
 
 function crearTablaContactosCorrectamente(obj)
         {   //crea tablas de distintos tipos y agrega los datos
             
-            let tabla = document.getElementById("tablaContactos")
-            if(tabla) tabla.remove();
+
             
             tabla = document.createElement("table");
             tabla.id = "tablaContactos";
@@ -52,11 +102,14 @@ function crearTablaContactosCorrectamente(obj)
             //mostrar notificacion de ok
             crearNotificacionOK("Contactos obtenidos correctamente","Todo en orden");
 
+            //eliminaremos el loader
+            eliminarLoader();
         }
 
 function crearTablaContactosError()
 {
     crearNotificacionError("ESCRIBE BIEN EL CODIGO CRACK SOS BELLO","Favor verificar");
+    eliminarLoader();
 }
 
 function crearNotificacion(mensaje,titulo)
@@ -111,6 +164,39 @@ function crearColorNotificacion(color)
     let elementoNotificacion = document.getElementById("notificacion");
     elementoNotificacion.style.backgroundColor = getComputedStyle(document.documentElement).getPropertyValue(color);
 }
+
+
+
+function crearLoader(elementoPadre)
+{
+    eliminarLoader();
+    let loader = document.createElement("div");
+    loader.id = "loader";
+    loader.appendChild(document.createElement("div"));
+    loader.appendChild(document.createElement("div"));
+    loader.appendChild(document.createElement("div"));
+    loader.appendChild(document.createElement("div"));
+    loader.classList.add("lds-ellipsis");
+    document.getElementById(elementoPadre).appendChild(loader);
+
+}
+
+function eliminarLoader()
+{
+    let loader = document.getElementById("loader");
+    if(loader) loader.remove();
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
