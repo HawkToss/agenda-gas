@@ -4,7 +4,9 @@ function insertarContacto()
 {
     //obtener datos
     let nombre=document.getElementById("nombre").value;
+    let apellidos = document.getElementById("apellidos").value;
     let correo = document.getElementById("correo").value;
+    let telf = document.getElementById("telf").value;
 
     //eliminar tabla
     let tabla = document.getElementById("tablaContactos")
@@ -16,7 +18,7 @@ function insertarContacto()
     google.script.run
     .withSuccessHandler(contactoInsertadoCorrectamente)
     .withFailureHandler(contactoInsertadoError)
-    .insertarContacto(nombre,correo); //ejecuta la funcion y le retorna datos que van al obj
+    .insertarContacto(nombre, apellidos, correo, telf); //ejecuta la funcion y le retorna datos que van al obj
 
 }
 
@@ -24,7 +26,9 @@ function contactoInsertadoCorrectamente()
 {
     //eliminamos los datos de los inputs  
     document.getElementById("nombre").value = "";
+    document.getElementById("apellidos").value = "";
     document.getElementById("correo").value = "";
+    document.getElementById("telf").value = "";
 
     //mostrar notificacion
     crearNotificacionOK("Contacto insertado correctamente","CONTACTO OK");
@@ -71,25 +75,47 @@ function crearTablaContactosCorrectamente(obj)
             let tablaHeader = document.createElement("thead");
             let tablaBody = document.createElement("tbody");
 
-            Array.from(obj).forEach((filaActual,i) =>
+            let primeraFila = document.createElement("tr");
+            for(let i=0; i<obj[0].length; i++)
+            {
+                let celda = document.createElement("td");
+                celda.textContent = obj[0][i];
+                primeraFila.appendChild(celda);
+            }
+
+            //agregar columna OPCIONES
+            let celdaOpciones = document.createElement("td");
+            celdaOpciones.textContent = "OPCIONES"; 
+            celdaOpciones.classList.add("text-center");
+            primeraFila.appendChild(celdaOpciones);
+
+            //agregar la fila al header de la tabla
+            tablaHeader.appendChild(primeraFila);
+            tabla.appendChild(tablaHeader);
+            
+
+            //body de la tabla
+            for(let i=1; i<obj.length; i++)
             {
                 let fila = document.createElement("tr");
-                filaActual.forEach(celdaActual =>
+                for(let j=0; j<obj[i].length; j++)
                 {
                     let celda = document.createElement("td");
-                    celda.textContent = celdaActual;
+                    celda.textContent = obj[i][j];
                     fila.appendChild(celda);
-                });
-                if(i == 0)
-                {
-                    tablaHeader.appendChild(fila); 
-                    tabla.appendChild(tablaHeader);
+
                 }
-                else
-                {
-                tablaBody.appendChild(fila);
-                }
-            });
+                //agregar botones a la fila
+
+            fila.appendChild(crearCeldaBotones(i+1));
+            tablaBody.appendChild(fila);
+            }
+
+
+
+
+
+
             //agregamos clases a la cabecera
             tablaHeader.classList.add("table-dark");
             //agregamos el cuerpo a la tabla
@@ -104,7 +130,77 @@ function crearTablaContactosCorrectamente(obj)
 
             //eliminaremos el loader
             eliminarLoader();
-        }
+       }
+
+function crearCeldaBotones(numFila)
+{
+
+    let celda = document.createElement("td");
+    celda.classList.add("text-center");
+
+    //crear boton borrar
+    let botonBorrar = document.createElement("button");
+    botonBorrar.onclick = () => borrarContacto(numFila);
+    botonBorrar.classList.add("btn","btn-danger","m-1")
+    
+    let iconoBorrar = document.createElement("i");
+    iconoBorrar.classList.add("bi","bi-trash");
+    botonBorrar.appendChild(iconoBorrar);
+
+    //crear boton modificar
+    let botonModificar = document.createElement("button");
+    //botonBorrar.onclick = () => borrarContacto(numFila);
+    botonModificar.classList.add("btn","btn-warning","m-1")
+
+    //icono Modificar
+    let iconoModificar = document.createElement("i");
+    iconoModificar.classList.add("bi","bi-pencil-square");
+    botonModificar.appendChild(iconoModificar);
+
+    //agregar botones a la celda
+    celda.appendChild(botonBorrar);
+    celda.appendChild(botonModificar);
+
+    return celda;
+
+}
+
+function borrarContacto(numFila)
+{
+    //borrar tabla
+    let tabla = document.getElementById("tablaContactos")
+    if(tabla) tabla.remove();
+
+    //crear loader
+    crearLoader("divContactos");
+
+    google.script.run 
+    .withSuccessHandler(contactoBorradoCorrectamente)
+    .withFailureHandler(contactoBorradoError)
+    .borrarContacto(numFila); //ejecuta la funcion y le retorna datos que van al obj
+}
+
+function contactoBorradoCorrectamente()
+{
+        //mostrar notificacion
+        crearNotificacionOK("Contacto borrado correctamente","BORRADO OK");
+
+        //eliminar loader
+        eliminarLoader();
+
+        crearTablaContactos();
+}
+
+function contactoBorradoError()
+{
+        //mostrar notificacion
+        crearNotificacionOK("No se ha podido borrar el contacto","BORRADO FALLO");
+
+        //eliminar loader
+        eliminarLoader();
+
+        crearTablaContactos();
+}
 
 function crearTablaContactosError()
 {
@@ -248,5 +344,30 @@ function eliminarLoader()
 
 
 } */
+
+
+            /* Array.from(obj).forEach((filaActual,i) =>
+            {
+                let fila = document.createElement("tr");
+                filaActual.forEach(celdaActual =>
+                {
+                    let celda = document.createElement("td");
+                    celda.textContent = celdaActual;
+                    fila.appendChild(celda);
+                });
+                if(i == 0)
+                {
+                    tablaHeader.appendChild(fila); 
+                    tabla.appendChild(tablaHeader);
+                }
+                else
+                {
+                tablaBody.appendChild(fila);
+                } */
+
+            //});
+            //agregar columna opciones
+            
+
 
 </script>
